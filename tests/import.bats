@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Extensao npass-import (extensions/npass-import). Os fixtures sao sinteticos,
+# Extensao npass-import (npass-import). Os fixtures sao sinteticos,
 # escritos a partir do formato documentado de cada gerenciador: servem de
 # regressao do parser, NAO substituem testar com um export real (sanitizado).
 
@@ -9,7 +9,7 @@ setup() {
 	npass_test_keys || return 1
 	command -v python3 >/dev/null || skip "python3 nao instalado"
 	export NPASS_STORE="$BATS_TEST_TMPDIR/store"
-	export NPASS="$BATS_TEST_DIRNAME/../bin/npass"
+	export NPASS="$NPASS_CORE_DIR/bin/npass"
 	export NPASS_EXTENSIONS_DIR="$BATS_TEST_TMPDIR/ext"
 	export NPASS_ENABLE_EXTENSIONS=1
 	export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null

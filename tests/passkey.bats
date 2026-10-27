@@ -6,7 +6,7 @@ setup() {
 	export GNUPGHOME="$BATS_TEST_DIRNAME/gnupg_test"
 	load helper
 	npass_test_keys || return 1
-	export NPASS="$BATS_TEST_DIRNAME/../bin/npass"
+	export NPASS="$NPASS_CORE_DIR/bin/npass"
 	export PROJECT_DIR="$BATS_TEST_DIRNAME/.."
 	export NPASS_STORE="$BATS_TEST_TMPDIR/store"
 	export NPASS_EXTENSIONS_DIR="$BATS_TEST_TMPDIR/ext"

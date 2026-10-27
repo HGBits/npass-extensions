@@ -5,7 +5,7 @@ setup() {
 	load helper
 	npass_test_keys || return 1
 	export NPASS_STORE="$BATS_TEST_TMPDIR/store"
-	export NPASS="$BATS_TEST_DIRNAME/../bin/npass"
+	export NPASS="$NPASS_CORE_DIR/bin/npass"
 	mkdir -p "$NPASS_STORE"
 	export NPASS_EXTENSIONS_DIR="$BATS_TEST_TMPDIR/ext"
 	npass_test_install_ext npass-import || return 1

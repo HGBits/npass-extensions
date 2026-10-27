@@ -13,9 +13,9 @@ setup() {
 	load helper
 	npass_test_keys || return 1
 	command -v python3 >/dev/null || skip "python3 nao instalado"
-	export PYIMP="$BATS_TEST_DIRNAME/../extensions/npass-import"
+	export PYIMP="$BATS_TEST_DIRNAME/../npass-import"
 	export NPASS_STORE="$BATS_TEST_TMPDIR/store"
-	export NPASS="$BATS_TEST_DIRNAME/../bin/npass"
+	export NPASS="$NPASS_CORE_DIR/bin/npass"
 	export NPASS_EXTENSIONS_DIR="$BATS_TEST_TMPDIR/ext"
 	export NPASS_ENABLE_EXTENSIONS=1
 	export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null
@@ -221,9 +221,9 @@ PY
 	[[ "$output" != *"npass-legacy"* ]]
 }
 
-@test "nenhuma referencia ao fluxo removido sobra no codigo, nas extensoes, no instalador e nas docs" {
+@test "nenhuma referencia ao fluxo removido sobra nas extensoes e nas docs" {
 	local root="$BATS_TEST_DIRNAME/.."
 	run grep -rIl --exclude-dir=__pycache__ --exclude-dir=target --exclude-dir=.git -e 'npass-legacy' -e 'migrate_legacy_store' -e 'legacy_to_md1' -e 'erro_formato_antigo' \
-		"$root/lib" "$root/extensions" "$root/README.md" "$root/man" "$root/AGENTS.md" "$root/install.sh" "$root/packaging"
+		"$root"/npass-* "$root/README.md" "$root/AGENTS.md" "$root/docs" "$root/passkey/src"
 	[ -z "$output" ]
 }

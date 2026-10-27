@@ -1,0 +1,6 @@
+# gerados pelos testes
+tests/gnupg_test/
+tests/gnupg_atacante/
+tests/.keys.lock
+__pycache__/
+passkey/target/

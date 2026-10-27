@@ -1,10 +1,10 @@
-# AGENTS.md - extensions
+# AGENTS.md - npass_extensions
 
 ## Escopo
 
-Extensões opcionais executadas pelo sistema de extensões do `npass`.
+Extensões opcionais executadas pelo sistema de extensões do `npass`. Este repositório (`npass_extensions`) é separado do core (`npass-store`): o instalador do core (`install.sh`) as oferece, uma a uma, e as assina com a chave do usuário.
 
-As extensões são separadas do core e possuem contrato próprio. O core fornece contexto como `NPASS_STORE`, `NPASS_GPG`, `NPASS_LANG` e `NPASS_BIN`.
+As extensões possuem contrato próprio com o core. O core fornece contexto como `NPASS_STORE`, `NPASS_GPG`, `NPASS_LANG` e `NPASS_BIN`.
 
 ## Arquivos
 
@@ -77,3 +77,13 @@ extensions/npass-import
 ```
 
 Não leia todas as extensões para alterar uma única extensão.
+
+## Testes e o core
+
+Os testes (`tests/`, bats) são de integração: rodam as extensões contra o `npass` do repositório `npass-store`, achado por `NPASS_CORE_DIR` (padrão `../npass-store`). `tests/helper.bash` reaproveita o helper do core e sobrescreve só o que depende do layout dele (`npass_test_build`, `npass_test_ext_src`, `npass_test_raw`). Os testes do instalador (`install-ext.bats`, `install-passkey.bats`) ficam no core, porque testam o `install.sh`.
+
+## Regras
+
+1. Mudou o formato md1 no core: mude `parse_md1()` em `npass-import` e `npass-audit`.
+2. Mudou o nome ou a saída de um comando do core que uma extensão usa: é mudança de contrato; ajuste aqui e nos testes.
+3. O caminho em `# npass-extension-cargo:` é relativo à raiz deste repositório; o instalador compila em `passkey/`, só se a extensão for escolhida.
