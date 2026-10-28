@@ -2,14 +2,14 @@
 
 ```text
 Browser -> WebAuthn/FIDO2 -> npass-passkeyd (CTAP2 + UHID, Rust, soft-fido2)
-        -> `npass passkey ...` (extensions/npass-passkey, bash) -> npass (GPG)
+        -> `npass passkey ...` (npass-passkey, bash) -> npass (GPG)
                                    ├── ID/Fido/.map     descoberta
                                    └── ID/Fido/*.gpg    credencial
 ```
 
 ## Responsabilidades
 - **npass-passkeyd** (`passkey/`): CTAP2, CTAPHID, UHID, confirmação de presença. Nada em disco.
-- **npass-passkey** (`extensions/npass-passkey`): blobs, índice, lock, verificação, `serve`, `seal`.
+- **npass-passkey** (`npass-passkey`): blobs, índice, lock, verificação, `serve`, `seal`.
 - **npass**: recipients (`.gpg-id`, assinado se `.gpg-id.sig`), GPG, git, portas de extensão.
 
 ## Formatos (decisões onde a especificação deixava aberto)

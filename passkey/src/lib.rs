@@ -16,7 +16,7 @@ pub mod pin;
 pub mod uhid_loop;
 
 /// Versão do contrato daemon <-> extensão. Tem que ser igual a PASSKEY_PROTO
-/// em extensions/npass-passkey; o selo assinado pelo instalador amarra os dois.
+/// em npass-passkey; o selo assinado pelo instalador amarra os dois.
 pub const PROTOCOL: u32 = 1;
 
 /// AAGUID fixo (16 bytes) deste autenticador.

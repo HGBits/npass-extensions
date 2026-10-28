@@ -70,7 +70,7 @@ extensão
 Para importação:
 
 ```text
-extensions/npass-import
+npass-import
   -> tests/import.bats
   -> tests/import-pass.bats
   -> tests/import-pass-secrets.bats

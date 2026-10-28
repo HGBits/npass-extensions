@@ -9,7 +9,7 @@ Daemon Rust: autenticador FIDO2 virtual. **Sem armazenamento próprio**: toda cr
 | `src/pin.rs` | pede o PIN (`--pin-cmd`, zenity, kdialog, tty sem eco); `Secret` zera ao descartar |
 | `src/confirm.rs` | presença do usuário (comando, zenity, kdialog, tty; senão nega) |
 | `src/uhid_loop.rs` | UHID + CTAPHID + CTAP2 |
-| `src/lib.rs` | `PROTOCOL` (tem que igualar `PASSKEY_PROTO` em `extensions/npass-passkey`), AAGUID, config |
+| `src/lib.rs` | `PROTOCOL` (tem que igualar `PASSKEY_PROTO` em `npass-passkey`), AAGUID, config |
 | `tests/cli.rs` | linha de comando: sem `--auto-approve` |
 | `tests/e2e.rs` | cerimônia WebAuthn em processo (memória; e npass real via `NPASS_E2E_BIN`/`NPASS_E2E_ID`) |
 
