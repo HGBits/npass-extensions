@@ -1,4 +1,4 @@
-# Helper dos testes do repositorio de extensoes (npass_extensions).
+# Helper dos testes do repositorio de extensoes (npass-extensions).
 #
 # Os testes sao de INTEGRACAO: rodam as extensoes contra o npass de verdade, que mora em
 # outro repositorio (npass-store). O helper do core e reaproveitado (chaves GPG

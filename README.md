@@ -1,4 +1,4 @@
-# npass_extensions
+# npass-extensions
 
 Extensões opcionais do [npass](https://github.com/HGBits/npass-store), o gerenciador de senhas
 para Linux/Wayland com GPG.
@@ -17,7 +17,8 @@ Pelo instalador do npass, que oferece cada extensão com uma descrição curta e
 você aceitar:
 
 ```bash
-cd ~/Projetos/npass-store                      # com este repositório ao lado: ~/Projetos/npass_extensions
+cd ~/Projetos/npass-store                      # com este repositório ao lado: ~/Projetos/npass-extensions
+                                               # (a pasta com o nome antigo, npass_extensions, também vale)
 sudo ./install.sh                              # instala o npass e, num terminal, oferece as extensões
 ./install.sh --extensions-only                 # só as extensões
 ./install.sh --extensions-src=/caminho/aqui    # este checkout, em qualquer lugar

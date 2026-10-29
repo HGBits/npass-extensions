@@ -1,8 +1,8 @@
-# AGENTS.md - npass_extensions
+# AGENTS.md - npass-extensions
 
 ## Escopo
 
-Extensões opcionais executadas pelo sistema de extensões do `npass`. Este repositório (`npass_extensions`) é separado do core (`npass-store`): o instalador do core (`install.sh`) as oferece, uma a uma, e as assina com a chave do usuário.
+Extensões opcionais executadas pelo sistema de extensões do `npass`. Este repositório (`npass-extensions`) é separado do core (`npass-store`): o instalador do core (`install.sh`) as oferece, uma a uma, e as assina com a chave do usuário.
 
 As extensões possuem contrato próprio com o core. O core fornece contexto como `NPASS_STORE`, `NPASS_GPG`, `NPASS_LANG` e `NPASS_BIN`.
 
