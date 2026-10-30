@@ -82,6 +82,11 @@ chmod 644 "$OUT/helpers/npass-passkeyd.stamp"
 sign_file "$OUT/helpers/npass-passkeyd"
 sign_file "$OUT/helpers/npass-passkeyd.stamp"
 
+BUNDLE="$OUT/npass-extensions-$TARGET.tar.gz"
+tar -C "$OUT" -czf "$BUNDLE" extensions helpers
+sign_file "$BUNDLE"
+
+printf 'Pacote assinado: %s\n' "$BUNDLE"
 printf 'Artefatos assinados em: %s\n' "$OUT"
 printf 'Target: %s\n' "$TARGET"
 printf 'Chave: %s\n' "$KEY"
