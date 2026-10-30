@@ -4,3 +4,6 @@ tests/gnupg_atacante/
 tests/.keys.lock
 __pycache__/
 passkey/target/
+
+# artefatos locais de release (binários e assinaturas)
+dist/
