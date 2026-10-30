@@ -9,7 +9,7 @@ Browser -> WebAuthn/FIDO2 -> npass-passkeyd (CTAP2 + UHID, Rust, soft-fido2)
 
 ## Responsabilidades
 - **npass-passkeyd** (`passkey/`): CTAP2, CTAPHID, UHID, confirmação de presença. Nada em disco.
-- **npass-passkey** (`npass-passkey`): blobs, índice, lock, verificação, `serve`, `seal`.
+- **npass-passkey** (`npass-passkey`): blobs, índice, lock, verificação e `serve`.
 - **npass**: recipients (`.gpg-id`, assinado se `.gpg-id.sig`), GPG, git, portas de extensão.
 
 ## Formatos (decisões onde a especificação deixava aberto)
@@ -57,15 +57,28 @@ Browser -> WebAuthn/FIDO2 -> npass-passkeyd (CTAP2 + UHID, Rust, soft-fido2)
   site que não peça UV não acha a credencial. Navegadores pedem UV, então na prática o PIN aparece em `opcional`.
 
 ## Segurança do helper
-`serve` exige: diretório de helpers seu e sem escrita de grupo/outros; helper e selo regulares (não links),
-com `.sig` válida de uma chave **secreta sua**; selo com protocolo igual, sha256 do helper e sha256 desta
-extensão iguais aos atuais. Binário antigo (ainda assinado), adulterado ou de outra versão é recusado.
-Resíduo: checagem e `exec` não são atômicos (mesma limitação do sistema de extensões); o diretório 0700 o reduz.
+`serve` localiza o daemon em `npass/helpers` dentro dos diretórios de `XDG_DATA_DIRS` (padrão
+`/usr/local/share:/usr/share`). Não aceita `NPASS_HELPERS_DIR`, diretório do usuário ou fallback em
+`~/.local/share`. A árvore, o daemon, o selo, suas assinaturas e a chave pública precisam ser
+arquivos/diretórios reais, root-owned e sem escrita por grupo/outros.
 
-## Instalação
-`install.sh`, só ao escolher `npass-passkey` (cabeçalho `npass-extension-cargo`): confere o cargo do usuário
-que roda o npass, apaga qualquer binário anterior, compila `passkey/` com `--locked`, exige binário novo,
-instala o helper, assina a extensão e roda `npass passkey seal`. Falhou o cargo: nada é instalado.
+O daemon e o selo possuem assinaturas destacadas verificadas com um keyring GPG temporário que
+contém exclusivamente a chave pública oficial instalada em `npass/extension-signing-key.asc`.
+A fingerprint primária precisa corresponder à única chave importada. O selo vincula protocolo,
+SHA-256 do daemon e SHA-256 exato desta extensão. Binário adulterado, antigo ou assinado por
+outra chave é recusado. A verificação e o `exec` não são atômicos; a árvore root-owned reduz
+a possibilidade de troca por outro usuário.
+
+## Distribuição e instalação
+O mantenedor executa `scripts/release-sign.sh` em ambiente de release offline. O script compila
+`passkey/` com `cargo build --release --locked`, copia os scripts de extensão, gera o selo de
+compatibilidade e assina cada artefato com a chave privada oficial. A chave privada não é
+armazenada neste repositório, no pacote nem em CI.
+
+Os artefatos do daemon são específicos por target Rust e devem ser publicados junto da release.
+O core só pode instalar o daemon depois de validar a assinatura oficial do pacote/artefato e
+deve colocá-lo em `$PREFIX/share/npass/helpers/`, com proprietário root e permissões restritas.
+A extensão não compila, sela nem assina código no computador do usuário.
 
 ## Limites conhecidos
 - O PIN é verificado no backend/daemon, não envolve a credencial criptograficamente: quem roda como o seu
