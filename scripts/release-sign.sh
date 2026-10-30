@@ -3,7 +3,7 @@
 # The private release key must never be stored in this repository or CI.
 set -euo pipefail
 
-ROOT="$(cd -- "$(dirname -- "\${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 usage() {
@@ -32,7 +32,9 @@ while (($#)); do
 	esac
 done
 
-KEY="\${NPASS_RELEASE_SIGNING_KEY:-}"
+KEY="${NPASS_RELEASE_SIGNING_KEY:-}"
+PUBKEY="${NPASS_RELEASE_PUBLIC_KEY:-$ROOT/../npass-store/packaging/npass-release.asc}"
+[[ -s "$PUBKEY" ]] || { echo "Chave pública oficial não encontrada: $PUBKEY (defina NPASS_RELEASE_PUBLIC_KEY)." >&2; exit 1; }
 [[ -n "$KEY" ]] || { echo "Defina NPASS_RELEASE_SIGNING_KEY com o fingerprint da chave oficial." >&2; exit 1; }
 command -v gpg >/dev/null 2>&1 || { echo "gpg não encontrado." >&2; exit 1; }
 command -v cargo >/dev/null 2>&1 || { echo "cargo não encontrado." >&2; exit 1; }
@@ -76,7 +78,7 @@ fi
 
 for src in "$ROOT"/npass-*; do
 	[[ -f "$src" && "$src" != *.sig ]] || continue
-	name="\${src##*/}"
+	name="${src##*/}"
 	cp -- "$src" "$OUT/extensions/$name"
 	chmod 755 "$OUT/extensions/$name"
 	sign_file "$OUT/extensions/$name"
