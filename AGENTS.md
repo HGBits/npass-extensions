@@ -2,9 +2,9 @@
 
 ## Escopo
 
-Extensões opcionais executadas pelo sistema de extensões do `npass`. Este repositório (`npass-extensions`) é separado do core (`npass-store`): o instalador do core (`install.sh`) as oferece, uma a uma, e as assina com a chave do usuário.
+Extensões opcionais executadas pelo sistema de extensões do `npass`. Este repositório (`npass-extensions`) é separado do core (`npass-store`): o instalador do core (`install.sh`) as oferece, uma a uma, e só instala artefatos assinados pela chave oficial de release.
 
-As extensões possuem contrato próprio com o core. O core fornece contexto como `NPASS_STORE`, `NPASS_GPG`, `NPASS_LANG` e `NPASS_BIN`.
+As extensões possuem contrato próprio com o core. O core fornece contexto como `NPASS_STORE`, `NPASS_GPG`, `NPASS_LANG` e `NPASS_BIN`. A autorização de extensões é centralizada: artefatos são assinados offline pelo mantenedor com a chave oficial; nunca use o keyring do usuário como raiz de confiança.
 
 ## Arquivos
 
@@ -32,9 +32,9 @@ Testes relacionados: `tests/import.bats`, `tests/import-pass.bats`, `tests/impor
 
 ### `npass-passkey`
 
-Backend de passkeys (`Fido/.map`, `Fido/*.gpg`), verificação, `serve` do helper Rust (`passkey/`) e `seal`.
+Backend de passkeys (`Fido/.map`, `Fido/*.gpg`), verificação e `serve` do helper Rust (`passkey/`). O helper e seu selo são artefatos assinados pelo mantenedor e instalados em caminho XDG compartilhado; não há `seal` executado no cliente.
 
-Teste: `tests/passkey.bats`. Daemon: `passkey/AGENTS.md`. Único `npass-*` que dispara `cargo` no `install.sh` (cabeçalho `npass-extension-cargo`).
+Teste: `tests/passkey.bats`. Daemon: `passkey/AGENTS.md`. O daemon Rust é compilado no processo de release e distribuído como artefato assinado.
 
 ### `npass-clip-x11.bash`
 
@@ -86,4 +86,4 @@ Os testes (`tests/`, bats) são de integração: rodam as extensões contra o `n
 
 1. Mudou o formato md1 no core: mude `parse_md1()` em `npass-import` e `npass-audit`.
 2. Mudou o nome ou a saída de um comando do core que uma extensão usa: é mudança de contrato; ajuste aqui e nos testes.
-3. O caminho em `# npass-extension-cargo:` é relativo à raiz deste repositório; o instalador compila em `passkey/`, só se a extensão for escolhida.
+3. `scripts/release-sign.sh` é executado pelo mantenedor em ambiente de release offline; não colocar chave privada em CI ou no repositório. O helper Rust é publicado como artefato assinado, não compilado/assinado pelo usuário na instalação.

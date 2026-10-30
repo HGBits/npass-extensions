@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 # npass-passkey: armazenamento de passkeys (Fido/.map + Fido/*.gpg), integridade,
-# helper assinado e instalação do daemon Rust apenas quando selecionado.
+# helper compartilhado validado pela chave oficial; instalação do daemon Rust como artefato de release.
 
 setup() {
 	export GNUPGHOME="$BATS_TEST_DIRNAME/gnupg_test"
@@ -9,8 +9,7 @@ setup() {
 	export NPASS="$NPASS_CORE_DIR/bin/npass"
 	export PROJECT_DIR="$BATS_TEST_DIRNAME/.."
 	export NPASS_STORE="$BATS_TEST_TMPDIR/store"
-	export NPASS_EXTENSIONS_DIR="$BATS_TEST_TMPDIR/ext"
-	export NPASS_HELPERS_DIR="$BATS_TEST_TMPDIR/helpers"
+	unset NPASS_EXTENSIONS_DIR NPASS_HELPERS_DIR NPASS_ENABLE_EXTENSIONS
 	export NPASS_PASSKEY_GIT=0
 	unset NPASS_GPG NPASS_BIN
 	npass_test_install_ext npass-passkey
@@ -214,77 +213,68 @@ only_blob() { ls "$FIDO"/*.gpg | head -n1; }
 
 # --- helper: localizar, validar, executar -----------------------------------------------
 
+helpers_dir() {
+	printf '%s/npass/helpers\n' "$XDG_DATA_DIRS"
+}
+
 fake_helper() {
-	mkdir -p -m 700 "$NPASS_HELPERS_DIR"
-	printf '#!/bin/sh\necho "helper-rodou: $*"\n' >"$NPASS_HELPERS_DIR/npass-passkeyd"
-	chmod 755 "$NPASS_HELPERS_DIR/npass-passkeyd"
+	local hdir ext stamp
+	hdir="$(helpers_dir)"
+	ext="$XDG_DATA_DIRS/npass/extensions/npass-passkey"
+	stamp="$hdir/npass-passkeyd.stamp"
+	mkdir -p -m 755 "$hdir"
+	printf '#!/bin/sh\necho "helper-rodou: $*"\n' >"$hdir/npass-passkeyd"
+	chmod 755 "$hdir/npass-passkeyd"
+	gpg --batch --yes -q -u "$FPR" --detach-sign -o "$hdir/npass-passkeyd.sig" "$hdir/npass-passkeyd"
+	{
+		printf '%s\n' 'npass-passkeyd-stamp-v1'
+		printf 'proto %s\n' 1
+		printf 'helper-sha256 %s\n' "$(sha256sum "$hdir/npass-passkeyd" | awk '{print $1}')"
+		printf 'extension-sha256 %s\n' "$(sha256sum "$ext" | awk '{print $1}')"
+	} >"$stamp"
+	chmod 644 "$stamp"
+	gpg --batch --yes -q -u "$FPR" --detach-sign -o "$stamp.sig" "$stamp"
 }
 
-@test "serve recusa helper ausente, sem assinatura ou sem selo" {
+@test "serve recusa helper ausente e valida helper/selo assinados pela chave oficial" {
 	run pk serve pessoal
 	[ "$status" -ne 0 ]
 	fake_helper
-	run pk serve pessoal
-	[[ "$output" == *"sem assinatura"* ]]
-	gpg --batch --yes -q -u "$FPR" --detach-sign -o "$NPASS_HELPERS_DIR/npass-passkeyd.sig" "$NPASS_HELPERS_DIR/npass-passkeyd"
-	run pk serve pessoal
-	[ "$status" -ne 0 ]
-	[[ "$output" == *"stamp"* ]]
-}
-
-@test "seal + serve: só executa o helper válido, com o --id da identidade" {
-	fake_helper
-	run pk seal "$FPR"
-	[ "$status" -eq 0 ]
 	run pk serve pessoal --confirm-cmd true
 	[ "$status" -eq 0 ]
 	[ "$output" = "helper-rodou: --id pessoal --confirm-cmd true" ]
 }
 
-@test "serve recusa binário adulterado, com assinatura de chave alheia e binário velho assinado por você" {
+@test "serve recusa helper adulterado, assinatura de chave alheia e selo de outra versão" {
 	fake_helper
-	pk seal "$FPR" >/dev/null
-	h="$NPASS_HELPERS_DIR/npass-passkeyd"
-	cp "$h" "$BATS_TEST_TMPDIR/bom"
-	# adulterado depois do selo
-	echo '# x' >>"$h"
+	h="$(helpers_dir)/npass-passkeyd"
+	stamp="$(helpers_dir)/npass-passkeyd.stamp"
+	echo '# adulterado' >>"$h"
 	run pk serve pessoal
 	[ "$status" -ne 0 ]
-	[[ "$output" == *"assinatura inválida"* ]]
-	# assinado pelo atacante
+	[[ "$output" == *"assinatura oficial inválida"* ]]
+
+	# Uma assinatura de outra chave não é confiável, mesmo que seja criptograficamente válida.
 	GNUPGHOME="$ATACANTE_GNUPGHOME" gpg --batch --yes -q --detach-sign -o "$h.sig" "$h"
-	GNUPGHOME="$ATACANTE_GNUPGHOME" gpg --export | gpg --import 2>/dev/null
-	run pk serve pessoal
-	[[ "$output" == *"não é sua"* ]]
-	# binário velho: assinatura SUA válida, mas o selo não o conhece
-	gpg --batch --yes -q -u "$FPR" --detach-sign -o "$h.sig" "$h"
 	run pk serve pessoal
 	[ "$status" -ne 0 ]
-	[[ "$output" == *"binário antigo ou adulterado"* ]]
-	# e um link simbólico nunca passa
-	rm "$h" "$h.sig"
-	ln -s "$BATS_TEST_TMPDIR/bom" "$h"
+	[[ "$output" == *"assinatura oficial inválida"* ]]
+
+	# Restaura o helper e assina novamente, mas mantém o selo antigo.
+	fake_helper
+	echo '# outra versão' >>"$XDG_DATA_DIRS/npass/extensions/npass-passkey"
+	gpg --batch --yes -q -u "$FPR" --detach-sign -o "$XDG_DATA_DIRS/npass/extensions/npass-passkey.sig" "$XDG_DATA_DIRS/npass/extensions/npass-passkey"
 	run pk serve pessoal
-	[[ "$output" == *"link simbólico"* ]]
+	[ "$status" -ne 0 ]
+	[[ "$output" == *"outra versão"* || "$output" == *"hash do helper"* ]]
 }
 
-@test "serve recusa helper selado para outra versão da extensão" {
+@test "serve recusa helper instalado em árvore compartilhada gravável por outros" {
 	fake_helper
-	pk seal "$FPR" >/dev/null
-	echo '# versão nova' >>"$NPASS_EXTENSIONS_DIR/npass-passkey"
-	"$NPASS" extension sign "$NPASS_EXTENSIONS_DIR/npass-passkey" "$FPR" >/dev/null
+	chmod 777 "$(helpers_dir)"
 	run pk serve pessoal
 	[ "$status" -ne 0 ]
-	[[ "$output" == *"outra versão desta extensão"* ]]
-}
-
-@test "serve recusa diretório de helpers gravável por outros" {
-	fake_helper
-	pk seal "$FPR" >/dev/null
-	chmod 777 "$NPASS_HELPERS_DIR"
-	run pk serve pessoal
-	[ "$status" -ne 0 ]
-	[[ "$output" == *"gravável"* ]]
+	[[ "$output" == *"permissões inseguros"* ]]
 }
 
 # --- daemon Rust: ciclo WebAuthn completo contra o npass real -----------------------------

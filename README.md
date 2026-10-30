@@ -21,32 +21,50 @@ cd ~/Projetos/npass-store                      # com este repositório ao lado: 
                                                # (a pasta com o nome antigo, npass_extensions, também vale)
 sudo ./install.sh                              # instala o npass e, num terminal, oferece as extensões
 ./install.sh --extensions-only                 # só as extensões
-./install.sh --extensions-src=/caminho/aqui    # este checkout, em qualquer lugar
-./install.sh --extensions-ref=v1.0             # sem cópia local: baixa este ref (tag ou branch)
+./install.sh --extensions-src=/caminho/aqui    # checkout ou dist/TRIPLE gerado pelo release-sign.sh
+./install.sh --extensions-ref=v1.0             # sem cópia local: baixa a release v1.0
 ```
 
 Sem uma cópia local, o instalador avisa e **pergunta** antes de baixar.
 
-## Por que a confiança é sua
+## Confiança e distribuição
 
-Extensões rodam **como programas seus, com acesso aos seus segredos**. Por isso só funcionam
-depois de assinadas **por você** (`npass extension sign`) e com `NPASS_ENABLE_EXTENSIONS=1`.
-O instalador assina com a sua chave o que você aceitou: **o que está neste repositório no
-momento em que você aceita é o que você passa a confiar.** Leia o diff antes, prefira um `ref`
-fixo (tag) e confira o commit que o instalador mostra (inclusive se ele é assinado).
+Extensões oficiais são assinadas pelo mantenedor com a chave privada de release do NPASS,
+mantida offline e nunca armazenada neste repositório. O instalador e o runtime do core validam
+assinaturas destacadas `.sig` usando exclusivamente a chave pública oficial instalada em
+`$PREFIX/share/npass/extension-signing-key.asc`. O keyring pessoal do usuário não participa
+da decisão de confiança; não existe comando para assinar extensões nem variável para ativá-las.
+
+O instalador só deve receber artefatos já assinados. Um checkout Git, mesmo de uma branch ou tag
+oficial, não substitui a assinatura criptográfica do artefato. Revise os artefatos e a origem
+antes de instalar, como convém a qualquer código que executa com acesso ao store de senhas.
+
+Para preparar uma distribuição, execute em uma máquina de release offline, com o checkout
+`npass-store` ao lado (para localizar a chave pública oficial):
+
+```bash
+NPASS_RELEASE_SIGNING_KEY=FINGERPRINT scripts/release-sign.sh
+```
+
+Se o checkout do core estiver em outro local, informe `NPASS_RELEASE_PUBLIC_KEY=/caminho/npass-release.asc`.
+O script gera `dist/TRIPLE/npass-extensions-TRIPLE.tar.gz` e sua assinatura destacada.
+Publique ambos como assets de uma GitHub Release com a mesma tag; o instalador procura esse nome
+exato. Para cada target suportado, gere um pacote próprio. Nunca copie a chave privada para o
+checkout, pacote ou CI.
 
 ## Estrutura
 
 ```text
 npass-*            uma extensão por arquivo (o sufixo .bash é tirado na instalação)
-passkey/           o daemon FIDO2/CTAP2/UHID em Rust, compilado só se você escolher npass-passkey
+passkey/           código-fonte do daemon FIDO2/CTAP2/UHID em Rust
 docs/              arquitetura do passkey, requisitos do Windows
 tests/             testes de integração (bats) contra o npass de verdade
 ```
 
-Cada extensão começa com cabeçalhos `# npass-extension-desc:`, `# npass-extension-needs:` e,
-para a que tem helper nativo, `# npass-extension-cargo: CAMINHO/Cargo.toml NOME` (o caminho é
-relativo à raiz deste repositório).
+Cada extensão começa com cabeçalhos `# npass-extension-desc:` e `# npass-extension-needs:`.
+A extensão `npass-passkey` também declara o helper nativo em `# npass-extension-helper:`;
+o daemon é um artefato de release separado, não compilado nem assinado pelo usuário durante
+a instalação.
 
 ## Testes
 
@@ -54,11 +72,11 @@ Os testes rodam as extensões contra o npass, que está em outro repositório:
 
 ```bash
 git clone https://github.com/HGBits/npass-store ../npass-store    # se ainda não estiver ao lado
-NPASS_CORE_DIR=../npass-store bats tests/
+sudo env NPASS_CORE_DIR=../npass-store bats tests/
 ```
 
-Precisam de `bats`, `gpg`, `python3`; os do daemon (`passkey`) precisam de `cargo` e são pulados
-sem ele.
+Precisam de `bats`, `gpg`, `python3` e root para reproduzir a árvore XDG root-owned. Os testes do
+daemon (`passkey`) precisam de `cargo` e são pulados sem ele.
 
 ## Contrato com o core
 
