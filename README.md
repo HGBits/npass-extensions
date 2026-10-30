@@ -22,7 +22,7 @@ cd ~/Projetos/npass-store                      # com este repositório ao lado: 
 sudo ./install.sh                              # instala o npass e, num terminal, oferece as extensões
 ./install.sh --extensions-only                 # só as extensões
 ./install.sh --extensions-src=/caminho/aqui    # este checkout, em qualquer lugar
-./install.sh --extensions-ref=v1.0             # sem cópia local: baixa este ref (tag ou branch)
+./install.sh --extensions-ref=v1.0             # sem cópia local: baixa a release v1.0
 ```
 
 Sem uma cópia local, o instalador avisa e **pergunta** antes de baixar.
@@ -39,15 +39,24 @@ O instalador só deve receber artefatos já assinados. Um checkout Git, mesmo de
 oficial, não substitui a assinatura criptográfica do artefato. Revise os artefatos e a origem
 antes de instalar, como convém a qualquer código que executa com acesso ao store de senhas.
 
-Para preparar uma distribuição local, use `scripts/release-sign.sh` em uma máquina de release
-com Cargo e a chave privada oficial disponível no GnuPG. O script gera assinaturas para as
-extensões e para o daemon passkey; nunca copie a chave privada para o checkout, pacote ou CI.
+Para preparar uma distribuição, execute em uma máquina de release offline, com o checkout
+`npass-store` ao lado (para localizar a chave pública oficial):
+
+```bash
+NPASS_RELEASE_SIGNING_KEY=FINGERPRINT scripts/release-sign.sh
+```
+
+Se o checkout do core estiver em outro local, informe `NPASS_RELEASE_PUBLIC_KEY=/caminho/npass-release.asc`.
+O script gera `dist/TRIPLE/npass-extensions-TRIPLE.tar.gz` e sua assinatura destacada.
+Publique ambos como assets de uma GitHub Release com a mesma tag; o instalador procura esse nome
+exato. Para cada target suportado, gere um pacote próprio. Nunca copie a chave privada para o
+checkout, pacote ou CI.
 
 ## Estrutura
 
 ```text
 npass-*            uma extensão por arquivo (o sufixo .bash é tirado na instalação)
-passkey/           o daemon FIDO2/CTAP2/UHID em Rust, compilado só se você escolher npass-passkey
+passkey/           código-fonte do daemon FIDO2/CTAP2/UHID em Rust
 docs/              arquitetura do passkey, requisitos do Windows
 tests/             testes de integração (bats) contra o npass de verdade
 ```
