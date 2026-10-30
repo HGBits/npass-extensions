@@ -44,7 +44,9 @@ VERIFY_HOME="$(mktemp -d "${TMPDIR:-/tmp}/npass-release-key.XXXXXX")"
 chmod 700 "$VERIFY_HOME"
 trap 'GNUPGHOME="$VERIFY_HOME" gpgconf --kill all 2>/dev/null || true; rm -rf -- "$VERIFY_HOME"' EXIT
 GNUPGHOME="$VERIFY_HOME" gpg --batch --quiet --import "$PUBKEY" 2>/dev/null
+PUB_COUNT="$(GNUPGHOME="$VERIFY_HOME" gpg --batch --with-colons --list-keys 2>/dev/null | grep -c '^pub:' || true)"
 EXPECTED_FPR="$(GNUPGHOME="$VERIFY_HOME" gpg --batch --with-colons --list-keys 2>/dev/null | awk -F: '$1=="fpr"{print $10; exit}')"
+[[ "$PUB_COUNT" == 1 ]] || { echo "A chave pública oficial precisa conter exatamente uma chave primária." >&2; exit 1; }
 SECRET_FPR="$(gpg --batch --with-colons --list-secret-keys "$KEY" 2>/dev/null | awk -F: '$1=="fpr"{print $10; exit}')"
 [[ -n "$EXPECTED_FPR" && "$SECRET_FPR" == "$EXPECTED_FPR" ]] || {
 	echo "A chave privada selecionada não corresponde à única chave pública oficial ($EXPECTED_FPR)." >&2
@@ -77,7 +79,7 @@ fi
 [[ -s "$BIN" && -x "$BIN" ]] || { echo "Cargo não produziu o daemon esperado: $BIN" >&2; exit 1; }
 
 for src in "$ROOT"/npass-*; do
-	[[ -f "$src" && "$src" != *.sig ]] || continue
+	[[ -f "$src" && ! -L "$src" && "$src" != *.sig ]] || continue
 	name="${src##*/}"
 	cp -- "$src" "$OUT/extensions/$name"
 	chmod 755 "$OUT/extensions/$name"
