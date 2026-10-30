@@ -59,6 +59,9 @@ warn() { printf 'npass passkey: %s: %s\n' "$(t aviso warning)" "$*" >&2; }
 T="$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/npass-passkey.XXXXXX" 2>/dev/null)" || die "$(t 'não consegui criar diretório temporário' 'cannot create temporary directory')"
 cleanup() {
 	if [[ -n "${T:-}" && -d "$T" ]]; then
+		if [[ -d "$T/official-gnupg" ]]; then
+			GNUPGHOME="$T/official-gnupg" gpgconf --kill all 2>/dev/null || true
+		fi
 		find "$T" -type f -exec shred -u -- {} + 2>/dev/null
 		rm -rf -- "$T"
 	fi
