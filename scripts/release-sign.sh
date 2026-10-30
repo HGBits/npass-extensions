@@ -9,7 +9,7 @@ cd "$ROOT"
 usage() {
 	cat <<'EOF'
 Uso:
-  NPASS_RELEASE_SIGNING_KEY=FINGERPRINT scripts/release-sign.sh [--out DIR] [--target TRIPLE]
+  NPASS_RELEASE_SIGNING_KEY=FINGERPRINT [NPASS_RELEASE_PUBLIC_KEY=FILE] scripts/release-sign.sh [--out DIR] [--target TRIPLE]
 
 A chave privada precisa estar disponível localmente no GnuPG. O script:
   - compila npass-passkeyd com Cargo --locked;
@@ -37,6 +37,18 @@ KEY="\${NPASS_RELEASE_SIGNING_KEY:-}"
 command -v gpg >/dev/null 2>&1 || { echo "gpg não encontrado." >&2; exit 1; }
 command -v cargo >/dev/null 2>&1 || { echo "cargo não encontrado." >&2; exit 1; }
 command -v rustc >/dev/null 2>&1 || { echo "rustc não encontrado." >&2; exit 1; }
+
+VERIFY_HOME="$(mktemp -d "${TMPDIR:-/tmp}/npass-release-key.XXXXXX")"
+chmod 700 "$VERIFY_HOME"
+trap 'GNUPGHOME="$VERIFY_HOME" gpgconf --kill all 2>/dev/null || true; rm -rf -- "$VERIFY_HOME"' EXIT
+GNUPGHOME="$VERIFY_HOME" gpg --batch --quiet --import "$PUBKEY" 2>/dev/null
+EXPECTED_FPR="$(GNUPGHOME="$VERIFY_HOME" gpg --batch --with-colons --list-keys 2>/dev/null | awk -F: '$1=="fpr"{print $10; exit}')"
+SECRET_FPR="$(gpg --batch --with-colons --list-secret-keys "$KEY" 2>/dev/null | awk -F: '$1=="fpr"{print $10; exit}')"
+[[ -n "$EXPECTED_FPR" && "$SECRET_FPR" == "$EXPECTED_FPR" ]] || {
+	echo "A chave privada selecionada não corresponde à única chave pública oficial ($EXPECTED_FPR)." >&2
+	exit 1
+}
+KEY="$EXPECTED_FPR"
 
 if [[ -z "$TARGET" ]]; then
 	TARGET="$(rustc -vV | sed -n 's/^host: //p')"
