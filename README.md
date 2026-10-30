@@ -21,7 +21,7 @@ cd ~/Projetos/npass-store                      # com este repositório ao lado: 
                                                # (a pasta com o nome antigo, npass_extensions, também vale)
 sudo ./install.sh                              # instala o npass e, num terminal, oferece as extensões
 ./install.sh --extensions-only                 # só as extensões
-./install.sh --extensions-src=/caminho/aqui    # este checkout, em qualquer lugar
+./install.sh --extensions-src=/caminho/aqui    # checkout ou dist/TRIPLE gerado pelo release-sign.sh
 ./install.sh --extensions-ref=v1.0             # sem cópia local: baixa a release v1.0
 ```
 
