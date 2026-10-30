@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # npass-extension-desc: Passkeys (WebAuthn/FIDO2) no desktop Linux, guardadas só no npass
 # npass-extension-needs: gpg
-# npass-extension-cargo: passkey/Cargo.toml npass-passkeyd
+# npass-extension-helper: npass-passkeyd
 #
 # npass-passkey - backend de armazenamento de passkeys + ponte para o daemon.
 #
@@ -83,7 +83,6 @@ uso: npass passkey COMANDO ...
   pin policy ID [nunca|opcional|requerido]   mostra ou muda a política (muda: exige PIN atual ou --gpg)
   pin verify ID                  lê o PIN no stdin e confere (usado pelo daemon); 5 erros bloqueiam
   serve ID [ARGS...]             valida o helper e inicia o autenticador FIDO virtual
-  seal [KEYID]                   (instalador) assina o helper e o selo de compatibilidade
 EOF
 	exit 2
 }
@@ -1068,6 +1067,7 @@ cmd_serve() {
 	stamp="$HELPER_DIR/npass-passkeyd.stamp"
 
 	system_path_secure "$HELPER_DIR" || die "$(t 'diretório compartilhado do helper tem proprietário ou permissões inseguros' 'shared helper directory has unsafe owner or permissions')"
+	[[ -x "$helper" ]] || die "$(t "helper não é executável" "helper is not executable")"
 	trusted_file "$helper" || trust_die npass-passkeyd
 	trusted_file "$stamp" || trust_die npass-passkeyd.stamp
 
@@ -1101,7 +1101,6 @@ main() {
 	rebuild-index) cmd_rebuild_index "$@" ;;
 	pin) cmd_pin "$@" ;;
 	serve) cmd_serve "$@" ;;
-	seal) cmd_seal "$@" ;;
 	'' | -h | --help | help) usage ;;
 	*) usage ;;
 	esac
