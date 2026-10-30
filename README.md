@@ -27,13 +27,21 @@ sudo ./install.sh                              # instala o npass e, num terminal
 
 Sem uma cópia local, o instalador avisa e **pergunta** antes de baixar.
 
-## Por que a confiança é sua
+## Confiança e distribuição
 
-Extensões rodam **como programas seus, com acesso aos seus segredos**. Por isso só funcionam
-depois de assinadas **por você** (`npass extension sign`) e com `NPASS_ENABLE_EXTENSIONS=1`.
-O instalador assina com a sua chave o que você aceitou: **o que está neste repositório no
-momento em que você aceita é o que você passa a confiar.** Leia o diff antes, prefira um `ref`
-fixo (tag) e confira o commit que o instalador mostra (inclusive se ele é assinado).
+Extensões oficiais são assinadas pelo mantenedor com a chave privada de release do NPASS,
+mantida offline e nunca armazenada neste repositório. O instalador e o runtime do core validam
+assinaturas destacadas `.sig` usando exclusivamente a chave pública oficial instalada em
+`$PREFIX/share/npass/extension-signing-key.asc`. O keyring pessoal do usuário não participa
+da decisão de confiança; não existe comando para assinar extensões nem variável para ativá-las.
+
+O instalador só deve receber artefatos já assinados. Um checkout Git, mesmo de uma branch ou tag
+oficial, não substitui a assinatura criptográfica do artefato. Revise os artefatos e a origem
+antes de instalar, como convém a qualquer código que executa com acesso ao store de senhas.
+
+Para preparar uma distribuição local, use `scripts/release-sign.sh` em uma máquina de release
+com Cargo e a chave privada oficial disponível no GnuPG. O script gera assinaturas para as
+extensões e para o daemon passkey; nunca copie a chave privada para o checkout, pacote ou CI.
 
 ## Estrutura
 
@@ -44,9 +52,10 @@ docs/              arquitetura do passkey, requisitos do Windows
 tests/             testes de integração (bats) contra o npass de verdade
 ```
 
-Cada extensão começa com cabeçalhos `# npass-extension-desc:`, `# npass-extension-needs:` e,
-para a que tem helper nativo, `# npass-extension-cargo: CAMINHO/Cargo.toml NOME` (o caminho é
-relativo à raiz deste repositório).
+Cada extensão começa com cabeçalhos `# npass-extension-desc:` e `# npass-extension-needs:`.
+A extensão `npass-passkey` também declara o helper nativo em `# npass-extension-helper:`;
+o daemon é um artefato de release separado, não compilado nem assinado pelo usuário durante
+a instalação.
 
 ## Testes
 
