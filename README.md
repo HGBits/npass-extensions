@@ -72,11 +72,11 @@ Os testes rodam as extensões contra o npass, que está em outro repositório:
 
 ```bash
 git clone https://github.com/HGBits/npass-store ../npass-store    # se ainda não estiver ao lado
-NPASS_CORE_DIR=../npass-store bats tests/
+sudo env NPASS_CORE_DIR=../npass-store bats tests/
 ```
 
-Precisam de `bats`, `gpg`, `python3`; os do daemon (`passkey`) precisam de `cargo` e são pulados
-sem ele.
+Precisam de `bats`, `gpg`, `python3` e root para reproduzir a árvore XDG root-owned. Os testes do
+daemon (`passkey`) precisam de `cargo` e são pulados sem ele.
 
 ## Contrato com o core
 
