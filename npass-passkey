@@ -991,7 +991,7 @@ system_path_secure() {
 		meta="$(stat -c '%u:%a' -- "$current" 2>/dev/null)" || return 1
 		uid="\${meta%%:*}"; mode="\${meta#*:}"
 		[[ "$uid" == 0 && "$mode" =~ ^[0-7]{3,4}$ ]] || return 1
-		(( (8#$mode & 0022) == 0 )) || return 1
+		(( (8#$mode & 0022) == 0 || (8#$mode & 01000) != 0 )) || return 1
 		current="\${current%/*}"; [[ -n "$current" ]] || current="/"
 	done
 	return 0
