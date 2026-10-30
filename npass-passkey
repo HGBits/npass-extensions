@@ -1009,6 +1009,7 @@ system_file_secure() {
 
 load_official_key() {
 	local nprim
+	[[ -n "$HELPER_FPR" && -d "$T/official-gnupg" ]] && return 0
 	[[ -n "$HELPER_KEY" ]] || return 1
 	system_path_secure "\${HELPER_KEY%/*}" || return 1
 	system_file_secure "$HELPER_KEY" || return 1
