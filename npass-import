@@ -3,7 +3,7 @@
 # npass-extension-needs: python3
 """npass-import - importa senhas de outros gerenciadores para uma identidade do npass.
 
-Uso:  npass import [opcoes] FORMATO ID [ARQUIVO...]      (npass import --list)
+Uso:  npass extension import [opcoes] FORMATO ID [ARQUIVO...]      (npass extension import --list)
 
 Extensao do npass (modelo de subprocesso assinado). Somente biblioteca padrao
 do Python 3: nenhuma dependencia externa, nenhuma rede.
@@ -32,12 +32,12 @@ csv.field_size_limit(sys.maxsize)  # notas grandes estouram o limite padrao (128
 # --------------------------------------------------------------------------
 _EN = os.environ.get("NPASS_LANG", "").startswith("en")
 _M = {
-    "uso": ("uso: npass import [opções] FORMATO ID [ARQUIVO...]   (npass import --list)",
-            "usage: npass import [options] FORMAT ID [FILE...]   (npass import --list)"),
-    "sem_bin": ("não achei o binário do npass (NPASS_BIN). Rode via 'npass import'.",
-                "could not find the npass binary (NPASS_BIN). Run it as 'npass import'."),
-    "fmt_desc": ("formato desconhecido: %s (veja 'npass import --list')",
-                 "unknown format: %s (see 'npass import --list')"),
+    "uso": ("uso: npass extension import [opções] FORMATO ID [ARQUIVO...]   (npass extension import --list)",
+            "usage: npass extension import [options] FORMAT ID [FILE...]   (npass extension import --list)"),
+    "sem_bin": ("não achei o binário do npass (NPASS_BIN). Rode via 'npass extension import'.",
+                "could not find the npass binary (NPASS_BIN). Run it as 'npass extension import'."),
+    "fmt_desc": ("formato desconhecido: %s (veja 'npass extension import --list')",
+                 "unknown format: %s (see 'npass extension import --list')"),
     "faltam_args": ("informe FORMATO, ID e o(s) arquivo(s) de origem",
                     "give FORMAT, ID and the source file(s)"),
     "sem_arquivo": ("arquivo não encontrado: %s", "file not found: %s"),
@@ -92,12 +92,12 @@ def t(key, *a):
 
 
 def die(msg, code=1):
-    print("npass import: " + msg, file=sys.stderr)
+    print("npass extension import: " + msg, file=sys.stderr)
     sys.exit(code)
 
 
 def warn(msg):
-    print("npass import: " + msg, file=sys.stderr)
+    print("npass extension import: " + msg, file=sys.stderr)
 
 
 # --------------------------------------------------------------------------
@@ -832,7 +832,7 @@ def list_formats():
 
 
 def main(argv):
-    ap = argparse.ArgumentParser(prog="npass import", add_help=False, allow_abbrev=False)
+    ap = argparse.ArgumentParser(prog="npass extension import", add_help=False, allow_abbrev=False)
     ap.add_argument("args", nargs="*")
     ap.add_argument("-p", "--path", default="")
     ap.add_argument("-f", "--force", action="store_true")
