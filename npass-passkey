@@ -5,14 +5,14 @@
 #
 # npass-passkey - backend de armazenamento de passkeys + ponte para o daemon.
 #
-#   npass passkey list ID [RP] [LOGIN]
-#   npass passkey store ID RP LOGIN < CREDENCIAL(base64)
-#   npass passkey load ID BLOB
-#   npass passkey rm ID BLOB
-#   npass passkey verify ID [--deep]
-#   npass passkey rebuild-index ID
-#   npass passkey serve ID [ARGS-DO-DAEMON...]
-#   npass passkey pin status|set|change|policy|verify ID ...   (PIN opcional por identidade)
+#   npass extension passkey list ID [RP] [LOGIN]
+#   npass extension passkey store ID RP LOGIN < CREDENCIAL(base64)
+#   npass extension passkey load ID BLOB
+#   npass extension passkey rm ID BLOB
+#   npass extension passkey verify ID [--deep]
+#   npass extension passkey rebuild-index ID
+#   npass extension passkey serve ID [ARGS-DO-DAEMON...]
+#   npass extension passkey pin status|set|change|policy|verify ID ...   (PIN opcional por identidade)
 # #
 # Layout (por identidade):
 #   $NPASS_STORE/ID/Fido/.map        índice de DESCOBERTA (rp_id, login, blob), 0600
@@ -50,11 +50,11 @@ SELF="$(readlink -f -- "${BASH_SOURCE[0]}" 2>/dev/null || printf '%s' "${BASH_SO
 t() { if [[ "$NPASS_LANG" == en* ]]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 
 die() {
-	printf 'npass passkey: %s\n' "$*" >&2
+	printf 'npass extension passkey: %s\n' "$*" >&2
 	exit 1
 }
 
-warn() { printf 'npass passkey: %s: %s\n' "$(t aviso warning)" "$*" >&2; }
+warn() { printf 'npass extension passkey: %s: %s\n' "$(t aviso warning)" "$*" >&2; }
 
 T="$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/npass-passkey.XXXXXX" 2>/dev/null)" || die "$(t 'não consegui criar diretório temporário' 'cannot create temporary directory')"
 cleanup() {
@@ -72,7 +72,7 @@ trap 'exit 143' TERM
 
 usage() {
 	cat >&2 <<'EOF'
-uso: npass passkey COMANDO ...
+uso: npass extension passkey COMANDO ...
   list ID [RP] [LOGIN]           lista as passkeys do índice (rp, login, blob)
   store ID RP LOGIN < CRED       guarda uma credencial (base64 do CBOR) e atualiza o índice
   load ID BLOB                   verifica o blob, decifra e imprime a credencial (base64)
@@ -355,11 +355,11 @@ cmd_list() {
 	setup_id "$id"
 	if [[ ! -e "$MAP" ]]; then
 		if compgen -G "$FIDO/*.gpg" >/dev/null; then
-			warn "$(t 'há blobs mas não há índice; rode: npass passkey rebuild-index' 'there are blobs but no index; run: npass passkey rebuild-index') $id"
+			warn "$(t 'há blobs mas não há índice; rode: npass extension passkey rebuild-index' 'there are blobs but no index; run: npass extension passkey rebuild-index') $id"
 		fi
 		return 0
 	fi
-	map_valid || die "$(t "índice inválido em $id; rode: npass passkey rebuild-index $id" "invalid index in $id; run: npass passkey rebuild-index $id")"
+	map_valid || die "$(t "índice inválido em $id; rode: npass extension passkey rebuild-index $id" "invalid index in $id; run: npass extension passkey rebuild-index $id")"
 	map_rows | awk -F'\t' -v rp="$rp" -v lg="$login" -v hasrp="${2+x}" -v haslg="${3+x}" \
 		'(hasrp=="" || $1==rp) && (haslg=="" || $2==lg)'
 }
@@ -379,7 +379,7 @@ cmd_store() {
 	pick_signer
 	mkdir -p -m 700 -- "$FIDO" || die "$(t 'não consegui criar Fido/' 'cannot create Fido/')"
 	lock_map x
-	map_valid || die "$(t "índice inválido em $id; rode: npass passkey rebuild-index $id" "invalid index in $id; run: npass passkey rebuild-index $id")"
+	map_valid || die "$(t "índice inválido em $id; rode: npass extension passkey rebuild-index $id" "invalid index in $id; run: npass extension passkey rebuild-index $id")"
 
 	name="$(new_blob_name)"
 	blob_build "$T/blob.new" "$rp" "$login" "$T/cred"
@@ -429,7 +429,7 @@ cmd_rm() {
 	[[ -d "$FIDO" ]] || die "$(t "blob não encontrado: $blob" "blob not found: $blob")"
 	lock_map x
 	[[ -e "$path" || -L "$path" ]] && found=1
-	map_valid || die "$(t "índice inválido em $id; rode: npass passkey rebuild-index $id" "invalid index in $id; run: npass passkey rebuild-index $id")"
+	map_valid || die "$(t "índice inválido em $id; rode: npass extension passkey rebuild-index $id" "invalid index in $id; run: npass extension passkey rebuild-index $id")"
 	rows="$(map_rows | awk -F'\t' -v b="$blob" '$3==b{n++} END{print n+0}')"
 	((found || rows)) || die "$(t "blob não encontrado: $blob" "blob not found: $blob")"
 	# Índice primeiro: uma queda no meio deixa um órfão (detectável), nunca uma entrada pendurada.
@@ -732,12 +732,12 @@ pin_record_write() {
 pin_try() {
 	local pin="$1" n h left
 	if [[ -z "$PIN_HASH" ]]; then
-		printf '%s\n' "$(t 'nenhum PIN definido (use: npass passkey pin set)' 'no PIN set (use: npass passkey pin set)')" >&2
+		printf '%s\n' "$(t 'nenhum PIN definido (use: npass extension passkey pin set)' 'no PIN set (use: npass extension passkey pin set)')" >&2
 		return 12
 	fi
 	n="$(tries_get)"
 	if ((n >= PIN_MAX_TRIES)); then
-		printf '%s\n' "$(t "PIN bloqueado após $PIN_MAX_TRIES erros. Desbloqueie com: npass passkey pin change ID --gpg" "PIN locked after $PIN_MAX_TRIES failures. Unlock with: npass passkey pin change ID --gpg")" >&2
+		printf '%s\n' "$(t "PIN bloqueado após $PIN_MAX_TRIES erros. Desbloqueie com: npass extension passkey pin change ID --gpg" "PIN locked after $PIN_MAX_TRIES failures. Unlock with: npass extension passkey pin change ID --gpg")" >&2
 		[[ "${PIN_VERIFY_STDOUT:-0}" == 1 ]] && printf 'tries-left 0\n'
 		return 11
 	fi
@@ -753,7 +753,7 @@ pin_try() {
 	if ((left > 0)); then
 		printf '%s\n' "$(t "PIN incorreto; restam $left tentativa(s)" "wrong PIN; $left attempt(s) left")" >&2
 	else
-		printf '%s\n' "$(t 'PIN incorreto; BLOQUEADO. Desbloqueie com: npass passkey pin change ID --gpg' 'wrong PIN; LOCKED. Unlock with: npass passkey pin change ID --gpg')" >&2
+		printf '%s\n' "$(t 'PIN incorreto; BLOQUEADO. Desbloqueie com: npass extension passkey pin change ID --gpg' 'wrong PIN; LOCKED. Unlock with: npass extension passkey pin change ID --gpg')" >&2
 	fi
 	return 10
 }
@@ -847,11 +847,11 @@ pin_print_status() { # lê o registro (já lockado) e imprime key/value estável
 	pin_record_read
 	rc=$?
 	if ((rc == 2)); then
-		printf 'npass passkey: %s\n' "$PIN_TAMPER" >&2
+		printf 'npass extension passkey: %s\n' "$PIN_TAMPER" >&2
 		exit 13
 	elif ((rc == 1)); then
 		printf 'policy requerido\nset 0\ntries-left 0\nblocked 1\ntampered 1\n'
-		printf 'npass passkey: %s\n' "$PIN_TAMPER" >&2
+		printf 'npass extension passkey: %s\n' "$PIN_TAMPER" >&2
 		return 0
 	fi
 	n="$(tries_get)"
@@ -888,8 +888,8 @@ cmd_pin() {
 		lock_map x
 		pin_record_read
 		rc=$?
-		if ((rc == 1)); then printf 'npass passkey: %s\n' "$PIN_TAMPER" >&2; printf 'tries-left 0\n'; exit 11; fi
-		((rc == 2)) && { printf 'npass passkey: %s\n' "$PIN_TAMPER" >&2; exit 13; }
+		if ((rc == 1)); then printf 'npass extension passkey: %s\n' "$PIN_TAMPER" >&2; printf 'tries-left 0\n'; exit 11; fi
+		((rc == 2)) && { printf 'npass extension passkey: %s\n' "$PIN_TAMPER" >&2; exit 13; }
 		PIN_VERIFY_STDOUT=1 pin_try "$p"
 		exit $?
 		;;
@@ -905,7 +905,7 @@ cmd_pin() {
 			((PIN_GPG)) || die "$PIN_TAMPER. $(t 'Refaça com --gpg (prova da chave GPG); a política volta a "opcional".' 'Redo with --gpg (GPG key proof); the policy falls back to "opcional".')"
 			gpg_reauth || die "$(t 'a prova com a chave GPG falhou' 'GPG key proof failed')"
 		fi
-		[[ -z "$PIN_HASH" ]] || die "$(t "já existe um PIN em $id; use: npass passkey pin change $id" "a PIN already exists in $id; use: npass passkey pin change $id")"
+		[[ -z "$PIN_HASH" ]] || die "$(t "já existe um PIN em $id; use: npass extension passkey pin change $id" "a PIN already exists in $id; use: npass extension passkey pin change $id")"
 		get_new_pin
 		new_pin_record "$PIN_POLICY"
 		tries_set 0 || die "$(t 'não consegui criar o contador de tentativas' 'cannot create the attempt counter')"
@@ -919,8 +919,8 @@ cmd_pin() {
 		lock_map x
 		pin_record_read
 		rc=$?
-		if ((rc != 0)); then die "$PIN_TAMPER. $(t 'Use: npass passkey pin set ID --gpg' 'Use: npass passkey pin set ID --gpg')"; fi
-		[[ -n "$PIN_HASH" ]] || die "$(t "nenhum PIN definido em $id; use: npass passkey pin set $id" "no PIN set in $id; use: npass passkey pin set $id")"
+		if ((rc != 0)); then die "$PIN_TAMPER. $(t 'Use: npass extension passkey pin set ID --gpg' 'Use: npass extension passkey pin set ID --gpg')"; fi
+		[[ -n "$PIN_HASH" ]] || die "$(t "nenhum PIN definido em $id; use: npass extension passkey pin set $id" "no PIN set in $id; use: npass extension passkey pin set $id")"
 		pin_authorize
 		get_new_pin
 		new_pin_record "$PIN_POLICY"
@@ -946,7 +946,7 @@ cmd_pin() {
 		lock_map x
 		pin_record_read
 		rc=$?
-		if ((rc != 0)); then die "$PIN_TAMPER. $(t 'Use: npass passkey pin set ID --gpg' 'Use: npass passkey pin set ID --gpg')"; fi
+		if ((rc != 0)); then die "$PIN_TAMPER. $(t 'Use: npass extension passkey pin set ID --gpg' 'Use: npass extension passkey pin set ID --gpg')"; fi
 		if [[ -n "$PIN_HASH" ]]; then
 			pin_authorize
 			tries_set 0 2>/dev/null
@@ -955,7 +955,7 @@ cmd_pin() {
 		git_commit "$id"
 		printf '%s\n' "$(t "política de $id: $newpol" "policy of $id: $newpol")"
 		if [[ "$newpol" == requerido && -z "$PIN_HASH" ]]; then
-			warn "$(t 'não há PIN: toda operação será NEGADA até você definir um (npass passkey pin set)' 'no PIN set: every operation will be DENIED until you set one (npass passkey pin set)')"
+			warn "$(t 'não há PIN: toda operação será NEGADA até você definir um (npass extension passkey pin set)' 'no PIN set: every operation will be DENIED until you set one (npass extension passkey pin set)')"
 		fi
 		;;
 
