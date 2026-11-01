@@ -3,7 +3,7 @@
 # The private release key must never be stored in this repository or CI.
 set -euo pipefail
 
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
 usage() {
@@ -16,8 +16,8 @@ Assina com a mesma chave GPG usada pelo npass-tui. A chave é selecionada nesta 
   2. git config user.signingkey
   3. chave secreta padrão do GPG
 
-A chave pública oficial é carregada de ../npass-store/packaging/npass-release.asc.
-Use NPASS_RELEASE_PUBLIC_KEY para informar outro caminho.
+A chave pública oficial versionada neste repositório é packaging/npass-release.asc.
+Use NPASS_RELEASE_PUBLIC_KEY apenas para apontar explicitamente para uma chave substituta.
 
 Compila npass-passkeyd, prepara extensões e helpers em staging isolado,
 assina e verifica cada artefato e publica o diretório completo por rename.
@@ -43,12 +43,12 @@ while (($#)); do
 done
 
 KEY="${NPASS_RELEASE_SIGNING_KEY:-}"
-PUBKEY="${NPASS_RELEASE_PUBLIC_KEY:-$ROOT/../npass-store/packaging/npass-release.asc}"
+PUBKEY="${NPASS_RELEASE_PUBLIC_KEY:-$ROOT/packaging/npass-release.asc}"
 for tool in gpg cargo rustc tar gzip sha256sum install; do
 	command -v "$tool" >/dev/null 2>&1 || { echo "$tool não encontrado." >&2; exit 1; }
 done
 
-# Keep key selection consistent with npass-tui/build.sh.
+# Keep key selection consistent with npass-tui/release.sh.
 if [[ -z "$KEY" ]] && command -v git >/dev/null 2>&1; then
 	KEY="$(git config --get user.signingkey 2>/dev/null || true)"
 fi
