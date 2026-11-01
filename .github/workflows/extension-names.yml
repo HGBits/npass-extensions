@@ -1,0 +1,20 @@
+name: extension-names
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - "npass-*"
+      - "tests/extension-names.bats"
+      - ".github/workflows/extension-names.yml"
+
+jobs:
+  naming:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+      - name: Validate extension artifact names and CLI usage
+        run: bats tests/extension-names.bats
