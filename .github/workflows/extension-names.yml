@@ -22,6 +22,9 @@ jobs:
       - name: Validate release builder syntax
         run: bash -n scripts/release-sign.sh
       - name: Validate release builder help
-        run: bash scripts/release-sign.sh --help
+        run: |
+          bash scripts/release-sign.sh --help | tee /tmp/release-help.txt
+          grep -Fq './release.sh [--out DIR] [--target TRIPLE]' /tmp/release-help.txt
+          grep -Fq 'git config user.signingkey' /tmp/release-help.txt
       - name: Validate extension artifact names and CLI usage
         run: bats tests/extension-names.bats
