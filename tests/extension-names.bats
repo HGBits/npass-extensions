@@ -32,4 +32,6 @@
   [[ "$output" == *"git config user.signingkey"* ]]
   [[ "$output" != *"scripts/release-sign.sh [--out DIR]"* ]]
   [ ! -e "$BATS_TEST_DIRNAME/../scripts/release-sign.sh" ]
+  [ -s "$BATS_TEST_DIRNAME/../packaging/npass-release.asc" ]
+  [[ "$output" != *"npass-store"* ]]
 }
