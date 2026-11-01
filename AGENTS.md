@@ -86,4 +86,4 @@ Os testes (`tests/`, bats) são de integração: rodam as extensões contra o `n
 
 1. Mudou o formato md1 no core: mude `parse_md1()` em `npass-import` e `npass-audit`.
 2. Mudou o nome ou a saída de um comando do core que uma extensão usa: é mudança de contrato; ajuste aqui e nos testes.
-3. `scripts/release-sign.sh` é executado pelo mantenedor em ambiente de release offline; não colocar chave privada em CI ou no repositório. O helper Rust é publicado como artefato assinado, não compilado/assinado pelo usuário na instalação.
+3. `release.sh` contém toda a implementação de build, assinatura, verificação e publicação; é executado pelo mantenedor em ambiente de release offline. Não delegar a lógica para outro script e não colocar chave privada em CI ou no repositório. O helper Rust é publicado como artefato assinado, não compilado/assinado pelo usuário na instalação.
