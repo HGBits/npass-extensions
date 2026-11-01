@@ -9,11 +9,23 @@ cd "$ROOT"
 usage() {
 	cat <<'EOF'
 Uso:
-  NPASS_RELEASE_SIGNING_KEY=FINGERPRINT [NPASS_RELEASE_PUBLIC_KEY=FILE] scripts/release-sign.sh [--out DIR] [--target TRIPLE]
+  ./release.sh [--out DIR] [--target TRIPLE]
+
+Assina com a mesma chave GPG usada pelo npass-tui. A chave é selecionada nesta ordem:
+  1. NPASS_RELEASE_SIGNING_KEY (opcional, fingerprint ou ID)
+  2. git config user.signingkey
+  3. chave secreta padrão do GPG
+
+A chave pública oficial é carregada de ../npass-store/packaging/npass-release.asc.
+Use NPASS_RELEASE_PUBLIC_KEY para informar outro caminho.
 
 Compila npass-passkeyd, prepara extensões e helpers em staging isolado,
 assina e verifica cada artefato e publica o diretório completo por rename.
 O diretório --out é substituído integralmente; use um diretório dedicado.
+
+Exemplo:
+  ./release.sh
+  ./release.sh --target x86_64-unknown-linux-gnu
 
 Saída padrão: dist/<triple>/
 EOF
@@ -32,11 +44,22 @@ done
 
 KEY="${NPASS_RELEASE_SIGNING_KEY:-}"
 PUBKEY="${NPASS_RELEASE_PUBLIC_KEY:-$ROOT/../npass-store/packaging/npass-release.asc}"
-[[ -s "$PUBKEY" && ! -L "$PUBKEY" ]] || { echo "Chave pública oficial não encontrada ou inválida: $PUBKEY (defina NPASS_RELEASE_PUBLIC_KEY)." >&2; exit 1; }
-[[ -n "$KEY" ]] || { echo "Defina NPASS_RELEASE_SIGNING_KEY com o fingerprint da chave oficial." >&2; exit 1; }
 for tool in gpg cargo rustc tar gzip sha256sum install; do
 	command -v "$tool" >/dev/null 2>&1 || { echo "$tool não encontrado." >&2; exit 1; }
 done
+
+# Keep key selection consistent with npass-tui/build.sh.
+if [[ -z "$KEY" ]] && command -v git >/dev/null 2>&1; then
+	KEY="$(git config --get user.signingkey 2>/dev/null || true)"
+fi
+if [[ -z "$KEY" ]]; then
+	KEY="$(gpg --batch --with-colons --list-secret-keys 2>/dev/null | awk -F: '$1=="sec"{want=1;next} want && $1=="fpr"{print $10;exit}')"
+fi
+[[ -n "$KEY" ]] || { echo "Nenhuma chave secreta GPG encontrada. Configure git config user.signingkey ou NPASS_RELEASE_SIGNING_KEY." >&2; exit 1; }
+if [[ -z ${GPG_TTY:-} ]] && tty_path="$(tty 2>/dev/null)"; then
+	export GPG_TTY="$tty_path"
+fi
+[[ -s "$PUBKEY" && ! -L "$PUBKEY" ]] || { echo "Chave pública oficial não encontrada ou inválida: $PUBKEY (defina NPASS_RELEASE_PUBLIC_KEY)." >&2; exit 1; }
 
 VERIFY_HOME="$(mktemp -d "${TMPDIR:-/tmp}/npass-release-key.XXXXXX")"
 chmod 700 "$VERIFY_HOME"
