@@ -20,10 +20,10 @@ jobs:
       - name: Install Bats
         run: sudo apt-get update && sudo apt-get install -y bats
       - name: Validate release builder syntax
-        run: bash -n scripts/release-sign.sh
+        run: bash -n release.sh
       - name: Validate release builder help
         run: |
-          bash scripts/release-sign.sh --help | tee /tmp/release-help.txt
+          bash release.sh --help | tee /tmp/release-help.txt
           grep -Fq './release.sh [--out DIR] [--target TRIPLE]' /tmp/release-help.txt
           grep -Fq 'git config user.signingkey' /tmp/release-help.txt
       - name: Validate extension artifact names and CLI usage
