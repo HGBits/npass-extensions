@@ -3,6 +3,8 @@
 Extensões opcionais do [npass](https://github.com/HGBits/npass-store), o gerenciador de senhas
 para Linux/Wayland com GPG.
 
+Os comandos das extensões usam o namespace `npass extension`: por exemplo, `npass extension audit ID`, `npass extension import ...` e `npass extension clip-x11 ...`. Os nomes dos artefatos continuam com o prefixo `npass-`; esse prefixo não faz parte do nome lógico usado depois de `extension`.
+
 | Extensão | Faz |
 |---|---|
 | `npass-audit` | audita senhas por vazamentos, força e reutilização |
