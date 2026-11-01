@@ -41,8 +41,8 @@ O instalador só deve receber artefatos já assinados. Um checkout Git, mesmo de
 oficial, não substitui a assinatura criptográfica do artefato. Revise os artefatos e a origem
 antes de instalar, como convém a qualquer código que executa com acesso ao store de senhas.
 
-Para preparar uma distribuição, execute em uma máquina de release offline, com o checkout
-`npass-store` ao lado (para localizar a chave pública oficial):
+Para preparar uma distribuição, execute em uma máquina de release offline, sem depender de um checkout do `npass-store`; a chave pública oficial fica versionada
+em `packaging/npass-release.asc`:
 
 ```bash
 ./release.sh
@@ -50,15 +50,15 @@ Para preparar uma distribuição, execute em uma máquina de release offline, co
 
 A seleção da chave privada segue o mesmo padrão do `npass-tui/release.sh`:
 `NPASS_RELEASE_SIGNING_KEY` (se definida), `git config user.signingkey` e, por último,
-a chave secreta padrão do GPG. Normalmente, portanto, basta configurar a chave uma vez:
+a chave secreta padrão do GPG. A raiz de confiança pública está no próprio repositório. Normalmente, portanto, basta configurar a chave uma vez:
 
 ```bash
 git config --global user.signingkey FINGERPRINT
 ```
 
-Se o checkout do core estiver em outro local, informe
-`NPASS_RELEASE_PUBLIC_KEY=/caminho/npass-release.asc`. Essa chave pública continua sendo
-obrigatória para conferir que a chave privada selecionada corresponde à chave oficial.
+A variável `NPASS_RELEASE_PUBLIC_KEY=/caminho/npass-release.asc` é opcional e só deve ser usada
+quando houver uma rotação ou substituição explícita da chave pública. O script compara o fingerprint
+da chave privada selecionada com a chave pública carregada, sem confiar no keyring pessoal.
 O `release.sh` compila, assina, verifica e gera `dist/TRIPLE/npass-extensions-TRIPLE.tar.gz` e sua assinatura destacada.
 Publique ambos como assets de uma GitHub Release com a mesma tag; o instalador procura esse nome
 exato. Para cada target suportado, gere um pacote próprio. Nunca copie a chave privada para o
