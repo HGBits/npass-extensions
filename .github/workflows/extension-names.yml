@@ -5,7 +5,7 @@ on:
     branches: [master]
   pull_request:
     paths:
-      - "npass-*"
+      - "npass-*"\n      - "scripts/**"\n      - "passkey/**"\n      - "Cargo.lock"
       - "tests/extension-names.bats"
       - ".github/workflows/extension-names.yml"
 
