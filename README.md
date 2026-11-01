@@ -45,7 +45,7 @@ Para preparar uma distribuição, execute em uma máquina de release offline, co
 `npass-store` ao lado (para localizar a chave pública oficial):
 
 ```bash
-NPASS_RELEASE_SIGNING_KEY=FINGERPRINT scripts/release.sh
+NPASS_RELEASE_SIGNING_KEY=FINGERPRINT ./release.sh
 ```
 
 Se o checkout do core estiver em outro local, informe `NPASS_RELEASE_PUBLIC_KEY=/caminho/npass-release.asc`.
