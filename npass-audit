@@ -3,7 +3,7 @@
 # npass-extension-needs: python3
 """npass-audit: auditoria de senhas de uma identidade npass.
 
-Uso: npass audit ID [CAMINHO/PREFIXO] [--offline] [-v]
+Uso: npass extension audit ID [CAMINHO/PREFIXO] [--offline] [-v]
 Consulta HIBP por k-anonymity (somente os 5 primeiros caracteres do SHA-1
 saem da máquina). zxcvbn é opcional. Senhas nunca são impressas.
 """
@@ -27,7 +27,7 @@ def tr(pt, en):
 
 
 def die(message, code=1):
-    print("npass audit: " + message, file=sys.stderr)
+    print("npass extension audit: " + message, file=sys.stderr)
     raise SystemExit(code)
 
 
@@ -117,7 +117,7 @@ def hibp_count(password, cache):
 
 def main(argv):
     ap = argparse.ArgumentParser(
-        prog="npass audit",
+        prog="npass extension audit",
         description=tr("Verifica vazamentos, senhas fracas e reutilizadas.",
                        "Check for breached, weak and reused passwords."),
         allow_abbrev=False)
@@ -130,8 +130,8 @@ def main(argv):
     ap.add_argument("--version", action="version", version="npass-audit " + VERSION)
     args = ap.parse_args(argv)
     if not args.identity:
-        ap.error(tr("informe a identidade: npass audit ID [CAMINHO/PREFIXO]",
-                    "provide an identity: npass audit ID [PATH/PREFIX]"))
+        ap.error(tr("informe a identidade: npass extension audit ID [CAMINHO/PREFIXO]",
+                    "provide an identity: npass extension audit ID [PATH/PREFIX]"))
 
     try:
         paths = list_paths(args.identity, args.path)
