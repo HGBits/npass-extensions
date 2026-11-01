@@ -4,10 +4,10 @@
 # npass-extension-needs: wclip
 #
 # Usage:
-#   npass wclip ID DIR/PASS
-#   npass wclip pass ID DIR/PASS
-#   npass wclip CAMPO ID DIR/PASS
-#   npass wclip all ID DIR/PASS
+#   npass extension wclip ID DIR/PASS
+#   npass extension wclip pass ID DIR/PASS
+#   npass extension wclip CAMPO ID DIR/PASS
+#   npass extension wclip all ID DIR/PASS
 #
 # Default:
 #   copies the password (section "## Senha").
@@ -17,7 +17,7 @@
 set -u
 
 npass_wclip_die() {
-	printf 'npass wclip: %s\n' "$*" >&2
+	printf 'npass extension wclip: %s\n' "$*" >&2
 	exit 1
 }
 
@@ -42,7 +42,7 @@ cmd_wclip() {
 
 		*)
 			npass_wclip_die \
-				"uso: npass wclip [CAMPO] ID DIR/PASS"
+				"uso: npass extension wclip [CAMPO] ID DIR/PASS"
 			;;
 	esac
 
