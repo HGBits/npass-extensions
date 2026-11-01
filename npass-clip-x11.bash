@@ -8,10 +8,10 @@
 #   - xclip
 #
 # Usage:
-#   npass clip-x11 ID DIR/PASS
-#   npass clip-x11 pass ID DIR/PASS
-#   npass clip-x11 CAMPO ID DIR/PASS
-#   npass clip-x11 all ID DIR/PASS
+#   npass extension clip-x11 ID DIR/PASS
+#   npass extension clip-x11 pass ID DIR/PASS
+#   npass extension clip-x11 CAMPO ID DIR/PASS
+#   npass extension clip-x11 all ID DIR/PASS
 #
 # The default mode copies the password (section "## Senha").
 # Field names are case-insensitive and support unique prefixes.
@@ -21,7 +21,7 @@ set -u
 : "${NPASS_CLIP_TIME:=45}"
 
 npass_clip_x11_die() {
-	printf 'npass clip-x11: %s\n' "$*" >&2
+	printf 'npass extension clip-x11: %s\n' "$*" >&2
 	exit 1
 }
 
@@ -97,7 +97,7 @@ cmd_clip_x11() {
 
 		*)
 			npass_clip_x11_die \
-				"uso: npass clip-x11 [CAMPO] ID DIR/PASS"
+				"uso: npass extension clip-x11 [CAMPO] ID DIR/PASS"
 			;;
 	esac
 
