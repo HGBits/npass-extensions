@@ -7,6 +7,8 @@ on:
     paths:
       - "npass-*"
       - "scripts/**"
+      - "release.sh"
+      - "packaging/npass-release.asc"
       - "passkey/**"
       - "Cargo.lock"
       - "tests/extension-names.bats"
