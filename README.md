@@ -48,7 +48,7 @@ Para preparar uma distribuição, execute em uma máquina de release offline, co
 ./release.sh
 ```
 
-A seleção da chave privada segue o mesmo padrão do `npass-tui/build.sh`:
+A seleção da chave privada segue o mesmo padrão do `npass-tui/release.sh`:
 `NPASS_RELEASE_SIGNING_KEY` (se definida), `git config user.signingkey` e, por último,
 a chave secreta padrão do GPG. Normalmente, portanto, basta configurar a chave uma vez:
 
@@ -59,7 +59,7 @@ git config --global user.signingkey FINGERPRINT
 Se o checkout do core estiver em outro local, informe
 `NPASS_RELEASE_PUBLIC_KEY=/caminho/npass-release.asc`. Essa chave pública continua sendo
 obrigatória para conferir que a chave privada selecionada corresponde à chave oficial.
-O script gera `dist/TRIPLE/npass-extensions-TRIPLE.tar.gz` e sua assinatura destacada.
+O `release.sh` compila, assina, verifica e gera `dist/TRIPLE/npass-extensions-TRIPLE.tar.gz` e sua assinatura destacada.
 Publique ambos como assets de uma GitHub Release com a mesma tag; o instalador procura esse nome
 exato. Para cada target suportado, gere um pacote próprio. Nunca copie a chave privada para o
 checkout, pacote ou CI.

@@ -26,9 +26,10 @@
 }
 
 @test "release help documents the default GPG key and canonical entrypoint" {
-  run bash "$BATS_TEST_DIRNAME/../scripts/release-sign.sh" --help
+  run bash "$BATS_TEST_DIRNAME/../release.sh" --help
   [ "$status" -eq 0 ]
   [[ "$output" == *"./release.sh [--out DIR] [--target TRIPLE]"* ]]
   [[ "$output" == *"git config user.signingkey"* ]]
   [[ "$output" != *"scripts/release-sign.sh [--out DIR]"* ]]
+  [ ! -e "$BATS_TEST_DIRNAME/../scripts/release-sign.sh" ]
 }
