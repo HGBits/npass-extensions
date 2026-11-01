@@ -106,10 +106,10 @@ done
 
 install -m 755 -- "$BIN" "$PAYLOAD/helpers/npass-passkeyd"
 {
-	printf '%s\\n' 'npass-passkeyd-stamp-v1'
-	printf 'proto %s\\n' 1
-	printf 'helper-sha256 %s\\n' "$(sha256sum "$PAYLOAD/helpers/npass-passkeyd" | awk '{print $1}')"
-	printf 'extension-sha256 %s\\n' "$(sha256sum "$PAYLOAD/extensions/npass-passkey" | awk '{print $1}')"
+	printf '%s\n' 'npass-passkeyd-stamp-v1'
+	printf 'proto %s\n' 1
+	printf 'helper-sha256 %s\n' "$(sha256sum "$PAYLOAD/helpers/npass-passkeyd" | awk '{print $1}')"
+	printf 'extension-sha256 %s\n' "$(sha256sum "$PAYLOAD/extensions/npass-passkey" | awk '{print $1}')"
 } >"$PAYLOAD/helpers/npass-passkeyd.stamp"
 chmod 644 "$PAYLOAD/helpers/npass-passkeyd.stamp"
 sign_file "$PAYLOAD/helpers/npass-passkeyd"
@@ -130,8 +130,8 @@ if ! mv -- "$PAYLOAD" "$OUT"; then
 	exit 1
 fi
 
-printf 'Pacote assinado: %s/%s\\n' "$OUT" "npass-extensions-$TARGET.tar.gz"
-printf 'Extensões: %s\\n' "$extension_count"
-printf 'Target: %s\\n' "$TARGET"
-printf 'Chave: %s\\n' "$KEY"
-printf 'Publique os artefatos sem incluir qualquer chave privada.\\n'
+printf 'Pacote assinado: %s/%s\n' "$OUT" "npass-extensions-$TARGET.tar.gz"
+printf 'Extensões: %s\n' "$extension_count"
+printf 'Target: %s\n' "$TARGET"
+printf 'Chave: %s\n' "$KEY"
+printf 'Publique os artefatos sem incluir qualquer chave privada.\n'
