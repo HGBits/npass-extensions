@@ -4,7 +4,7 @@
 
 Extensões opcionais executadas pelo sistema de extensões do `npass`. Este repositório (`npass-extensions`) é separado do core (`npass-store`): o instalador do core (`install.sh`) as oferece, uma a uma, e só instala artefatos assinados pela chave oficial de release.
 
-As extensões possuem contrato próprio com o core. O core fornece contexto como `NPASS_STORE`, `NPASS_GPG`, `NPASS_LANG` e `NPASS_BIN`. A autorização de extensões é centralizada: artefatos são assinados offline pelo mantenedor com a chave oficial; nunca use o keyring do usuário como raiz de confiança.
+As extensões possuem contrato próprio com o core. O core fornece contexto como `NPASS_STORE`, `NPASS_GPG`, `NPASS_LANG` e `NPASS_BIN`. A autorização de extensões é centralizada: artefatos são assinados offline pelo mantenedor com a chave oficial; nunca use o keyring do usuário como raiz de confiança. A chave pública oficial usada pelo release está versionada em `packaging/npass-release.asc`, sem dependência de checkout irmão.
 
 ## Arquivos
 
