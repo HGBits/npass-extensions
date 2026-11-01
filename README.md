@@ -23,7 +23,7 @@ cd ~/Projetos/npass-store                      # com este repositório ao lado: 
                                                # (a pasta com o nome antigo, npass_extensions, também vale)
 sudo ./install.sh                              # instala o npass e, num terminal, oferece as extensões
 ./install.sh --extensions-only                 # só as extensões
-./install.sh --extensions-src=/caminho/aqui    # checkout ou dist/TRIPLE gerado pelo release-sign.sh
+./install.sh --extensions-src=/caminho/aqui    # checkout ou dist/TRIPLE gerado pelo release.sh
 ./install.sh --extensions-ref=v1.0             # sem cópia local: baixa a release v1.0
 ```
 
@@ -45,7 +45,7 @@ Para preparar uma distribuição, execute em uma máquina de release offline, co
 `npass-store` ao lado (para localizar a chave pública oficial):
 
 ```bash
-NPASS_RELEASE_SIGNING_KEY=FINGERPRINT scripts/release-sign.sh
+NPASS_RELEASE_SIGNING_KEY=FINGERPRINT scripts/release.sh
 ```
 
 Se o checkout do core estiver em outro local, informe `NPASS_RELEASE_PUBLIC_KEY=/caminho/npass-release.asc`.
