@@ -5,7 +5,10 @@ on:
     branches: [master]
   pull_request:
     paths:
-      - "npass-*"\n      - "scripts/**"\n      - "passkey/**"\n      - "Cargo.lock"
+      - "npass-*"
+      - "scripts/**"
+      - "passkey/**"
+      - "Cargo.lock"
       - "tests/extension-names.bats"
       - ".github/workflows/extension-names.yml"
 
@@ -16,5 +19,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Bats
         run: sudo apt-get update && sudo apt-get install -y bats
+      - name: Validate release builder syntax
+        run: bash -n scripts/release-sign.sh
+      - name: Validate release builder help
+        run: bash scripts/release-sign.sh --help
       - name: Validate extension artifact names and CLI usage
         run: bats tests/extension-names.bats
