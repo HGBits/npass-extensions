@@ -269,7 +269,6 @@ O projeto utiliza ferramentas como:
 
 ```text
 oathtool
-otptool
 qrencode
 ```
 
@@ -530,7 +529,7 @@ Validar no Windows:
 ```text
 GPG
 Git
-oathtool / otptool
+oathtool
 qrencode
 ```
 
