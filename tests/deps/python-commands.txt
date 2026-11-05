@@ -1,0 +1,4 @@
+# Binarios chamados via subprocess/shutil.which com literal no primeiro argumento
+# das extensoes Python.
+shred   # coreutils
+stat    # coreutils

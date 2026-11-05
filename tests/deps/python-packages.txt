@@ -1,0 +1,4 @@
+# Modulos NAO-stdlib importados pelas extensoes Python (npass-import, npass-audit).
+# Cada um precisa existir no PyPI com esse mesmo nome (confira com
+# NPASS_TEST_NETWORK=1 bats tests/deps.bats). Stdlib e detectada automaticamente.
+zxcvbn   # PyPI zxcvbn (dwolfhub/zxcvbn-python); import opcional em npass-audit

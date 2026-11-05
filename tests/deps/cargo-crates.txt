@@ -1,0 +1,11 @@
+# Allowlist de crates diretos de passkey/Cargo.toml (dependencies, dev-dependencies,
+# build-dependencies). Segunda coluna "pin" = a versao tem de ser exata ("=x.y.z").
+# soft-fido2*: crate jovem (nov/2025, ~7 mil downloads) e de um unico mantenedor,
+# em codigo de autenticacao: fica pinado e cada bump deve ser revisado.
+soft-fido2            pin
+soft-fido2-ctap       pin
+soft-fido2-transport  pin
+base64
+libc
+p256
+sha2

@@ -1,0 +1,8 @@
+# Comandos sondados com `command -v`/`type -P` nas extensoes em Bash.
+git
+npass               # o proprio projeto
+gpg-connect-agent   # pacote gnupg
+xclip
+wl-copy
+wl-paste
+wclip               # palortoff/wclip (Windows, C++, MIT); a extensao usa `wclip --secret` via stdin. NAO confundir com wsl-clipboard (wclip.exe -i/-o)
