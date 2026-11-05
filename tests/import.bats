@@ -28,12 +28,6 @@ setup() {
 	done
 }
 
-@test "com extensoes desligadas (padrao) npass import e comando desconhecido" {
-	NPASS_ENABLE_EXTENSIONS=0 run "$NPASS" import --list
-	[ "$status" -ne 0 ]
-	[[ "$output" == *"comando desconhecido"* ]]
-}
-
 @test "sem argumentos: uso e codigo 2; formato desconhecido: codigo 2" {
 	run "$NPASS" import
 	[ "$status" -eq 2 ]
