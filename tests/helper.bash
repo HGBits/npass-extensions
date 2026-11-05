@@ -24,16 +24,16 @@ npass_test_build() {
 	if [[ ! -x "$bin" ]]; then
 		stale=1
 	else
-		for f in "$root"/lib/*.bash "$root/build.sh"; do
+		for f in "$root"/lib/*.bash "$root/release.sh"; do
 			[[ "$f" -nt "$bin" ]] && { stale=1; break; }
 		done
 	fi
 	((stale)) || return 0
 	(
 		flock 8
-		cd "$root" && bash build.sh >/dev/null 2>&1
+		cd "$root" && bash release.sh --build-only >/dev/null 2>&1
 	) 8>"$BATS_TEST_DIRNAME/.keys.lock"
-	[[ -x "$bin" ]] || { echo "falha ao construir o bin/npass do core (rode ./build.sh em $root)" >&2; return 1; }
+	[[ -x "$bin" ]] || { echo "falha ao construir o bin/npass do core (rode bash release.sh --build-only em $root)" >&2; return 1; }
 }
 
 # Copia DESTE repositorio (e nao do core) para $BATS_TEST_TMPDIR/extsrc.
